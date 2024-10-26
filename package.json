@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:ws": "nodemon src/ws_server/server.ts"
   },
-  "author": "Andrei Auchynnikau",
+  "author": "Evgeny",
   "keywords": [],
   "license": "ISC",
   "devDependencies": {

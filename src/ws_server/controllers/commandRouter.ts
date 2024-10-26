@@ -58,6 +58,13 @@ export const handleConnection = (
           console.log('attack: ', dataAt);
           handleAttack(ws, dataAt);
           break;
+        case 'randomAttack':
+          const dataRadAt = JSON.parse(d.data);
+          dataRadAt.x = Math.trunc(Math.random() * 10);
+          dataRadAt.y = Math.trunc(Math.random() * 10);
+          console.log('attack: ', dataRadAt);
+          handleAttack(ws, dataRadAt);
+          break;
         default:
           ws.send(JSON.stringify({ error: 'Unknown command' }));
       }

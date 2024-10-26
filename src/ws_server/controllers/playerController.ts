@@ -66,7 +66,7 @@ export const handlePlayerRegistration = (
       data: JSON.stringify({
         name: data.name,
         error: true,
-        errorText: 'Игрок уже существует',
+        errorText: 'Player already exists',
       }),
       id: 0,
     });
