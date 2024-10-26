@@ -1,6 +1,7 @@
 import { WebSocket, WebSocketServer } from 'ws';
-import { rooms, wsClients } from '../utils/database';
+import { rooms } from '../utils/database';
 import { ExtendedWebSocket } from './commandRouter';
+import { sendMessageToRoomPlayers } from '../utils/utils';
 
 export const handleAddUserToRoom = (
   ws: ExtendedWebSocket,
@@ -24,20 +25,7 @@ export const handleAddUserToRoom = (
         room.gameStarted = true;
         room.currentTurn = room.players[0].index;
 
-        for (const [client, player] of wsClients) {
-          if (room.players.some((p) => p.index === player.index)) {
-            client.send(
-              JSON.stringify({
-                type: 'create_game',
-                data: JSON.stringify({
-                  idGame: room.roomId,
-                  idPlayer: player.index,
-                }),
-                id: 0,
-              }),
-            );
-          }
-        }
+        sendMessageToRoomPlayers(room, 'create');
 
         // TODO: need 1 more state for available rooms and remove root from it here
         // const roomIndex = rooms.findIndex((r) => r.roomId === room.roomId);

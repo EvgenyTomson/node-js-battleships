@@ -1,6 +1,7 @@
 import { WebSocket } from 'ws';
-import { rooms, wsClients } from '../utils/database';
+import { rooms } from '../utils/database';
 import { Ship, Room } from '../utils/types';
+import { sendMessageToRoomPlayers } from '../utils/utils';
 
 export const handleAddShips = (
   ws: WebSocket,
@@ -17,20 +18,7 @@ export const handleAddShips = (
     if (Object.keys(room.ships).length === 2) {
       room.gameStarted = true;
 
-      for (const [client, player] of wsClients) {
-        if (room.players.some((p) => p.index === player.index)) {
-          client.send(
-            JSON.stringify({
-              type: 'start_game',
-              data: JSON.stringify({
-                ships: room.ships[player.index],
-                currentPlayerIndex: room.players[0].index,
-              }),
-              id: 0,
-            }),
-          );
-        }
-      }
+      sendMessageToRoomPlayers(room, 'start');
     }
   } else {
     ws.send(JSON.stringify({ error: 'Room is not found' }));
@@ -51,21 +39,9 @@ export const handleAttack = (
 
     const result = checkAttack(room, data.x, data.y, data.indexPlayer);
 
-    for (const [client, player] of wsClients) {
-      if (room.players.some((p) => p.index === player.index)) {
-        client.send(
-          JSON.stringify({
-            type: 'attack',
-            data: JSON.stringify({
-              position: JSON.stringify({ x: data.x, y: data.y }),
-              currentPlayer: data.indexPlayer,
-              status: result,
-            }),
-            id: 0,
-          }),
-        );
-      }
-    }
+    const { gameId, ...dataToSend } = data;
+
+    sendMessageToRoomPlayers(room, 'attack', { ...dataToSend, result });
 
     if (result === 'shot' || result === 'killed') {
       const opponentPlayer = findOpponentPlayer(room, data.indexPlayer);
@@ -89,17 +65,7 @@ export const handleAttack = (
     if (opponentPlayer) {
       room.currentTurn = opponentPlayer;
 
-      for (const [client, player] of wsClients) {
-        if (room.players.some((p) => p.index === player.index)) {
-          client.send(
-            JSON.stringify({
-              type: 'turn',
-              data: JSON.stringify({ currentPlayer: room.currentTurn }),
-              id: 0,
-            }),
-          );
-        }
-      }
+      sendMessageToRoomPlayers(room, 'turn');
     } else {
       ws.send(JSON.stringify({ error: 'Enemy not found' }));
     }
