@@ -62,7 +62,7 @@ export const handleConnection = (
           const dataRadAt = JSON.parse(d.data);
           dataRadAt.x = Math.trunc(Math.random() * 10);
           dataRadAt.y = Math.trunc(Math.random() * 10);
-          console.log('attack: ', dataRadAt);
+          console.log('randomAttack: ', dataRadAt);
           handleAttack(ws, dataRadAt);
           break;
         default:

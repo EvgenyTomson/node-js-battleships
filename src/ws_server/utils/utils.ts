@@ -1,7 +1,7 @@
 import { wsClients } from './database';
 import { Room } from './types';
 
-type MessageType = 'create' | 'start' | 'attack' | 'turn';
+type MessageType = 'create' | 'start' | 'attack' | 'turn' | 'finish';
 
 export const sendMessageToRoomPlayers = (
   room: Room,
@@ -45,12 +45,20 @@ export const sendMessageToRoomPlayers = (
             id: 0,
           });
           break;
+        case 'finish':
+          if (!data) return;
+          message = JSON.stringify({
+            type: 'finish',
+            data: JSON.stringify({ winPlayer: data.indexPlayer }),
+            id: 0,
+          });
+          break;
         case 'attack':
           if (!data) return;
           message = JSON.stringify({
             type: 'attack',
             data: JSON.stringify({
-              position: JSON.stringify({ x: data.x, y: data.y }),
+              position: { x: data.x, y: data.y },
               currentPlayer: data.indexPlayer,
               status: data.result,
             }),

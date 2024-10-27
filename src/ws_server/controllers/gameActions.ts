@@ -49,13 +49,7 @@ export const handleAttack = (
         opponentPlayer !== null &&
         allShipsKilled(room.ships[opponentPlayer])
       ) {
-        ws.send(
-          JSON.stringify({
-            type: 'finish',
-            data: JSON.stringify({ winPlayer: data.indexPlayer }),
-            id: 0,
-          }),
-        );
+        sendMessageToRoomPlayers(room, 'finish', { ...dataToSend, result });
         return;
       }
       return;
@@ -80,6 +74,16 @@ const allShipsKilled = (ships: Ship[]): boolean => {
   return ships.every((ship) => ship.hits.length === ship.length);
 };
 
+const checkShipHit = (hit: { x: number; y: number }, ship: Ship) => {
+  return (
+    // true - vertical
+    hit.x >= ship.position.x &&
+    hit.x < ship.position.x + (ship.direction ? 1 : ship.length) &&
+    hit.y >= ship.position.y &&
+    hit.y < ship.position.y + (ship.direction ? ship.length : 1)
+  );
+};
+
 const findOpponentPlayer = (room: Room, currentPlayer: number) => {
   const opponent = room.players.find(
     (player) => player.index !== currentPlayer,
@@ -95,21 +99,13 @@ const checkAttack = (
 ): 'miss' | 'shot' | 'killed' => {
   const opponentPlayer = findOpponentPlayer(room, attackingPlayer);
 
-  console.log('checkAttack opponentPlayer: ', opponentPlayer);
-
   if (opponentPlayer) {
     const opponentShips = room.ships[Number(opponentPlayer)];
 
     // console.log('checkAttack opponentShips: ', opponentShips);
 
     for (const ship of opponentShips) {
-      if (
-        // true - vertical
-        x >= ship.position.x &&
-        x < ship.position.x + (ship.direction ? 1 : ship.length) &&
-        y >= ship.position.y &&
-        y < ship.position.y + (ship.direction ? ship.length : 1)
-      ) {
+      if (checkShipHit({ x, y }, ship)) {
         const isAlreadyHit = ship.hits.some(
           (hit) => hit.x === x && hit.y === y,
         );
@@ -121,6 +117,16 @@ const checkAttack = (
 
         const isShipKilled = checkIfShipKilled(ship);
 
+        if (isShipKilled) {
+          const neighborsCells = getNeighborsCells(ship);
+
+          for (const { x, y } of neighborsCells) {
+            const result: 'miss' | 'shot' | 'killed' = 'miss';
+            const data = { x, y, indexPlayer: attackingPlayer, result };
+            sendMessageToRoomPlayers(room, 'attack', data);
+          }
+        }
+
         return isShipKilled ? 'killed' : 'shot';
       }
     }
@@ -130,3 +136,28 @@ const checkAttack = (
 };
 
 const checkIfShipKilled = (ship: Ship) => ship.hits.length === ship.length;
+
+const getNeighborsCells = (ship: Ship) => {
+  // true - vertical
+  const fromX = Math.max(ship.position.x - 1, 0);
+  const toX = ship.direction
+    ? Math.min(ship.position.x + 1, 9)
+    : Math.min(ship.position.x + ship.length, 9);
+  const fromY = Math.max(ship.position.y - 1, 0);
+  const toY = ship.direction
+    ? Math.min(ship.position.y + ship.length, 9)
+    : Math.min(ship.position.y + 1, 9);
+
+  const neighbors: { x: number; y: number }[] = [];
+
+  for (let i = fromX; i <= toX; i++) {
+    for (let k = fromY; k <= toY; k++) {
+      const cell = { x: i, y: k };
+      if (!checkShipHit(cell, ship)) {
+        neighbors.push(cell);
+      }
+    }
+  }
+
+  return neighbors;
+};
