@@ -150,10 +150,10 @@ const getNeighborsCells = (ship: Ship) => {
 
   const neighbors: { x: number; y: number }[] = [];
 
-  for (let i = fromX; i <= toX; i++) {
-    for (let k = fromY; k <= toY; k++) {
-      const cell = { x: i, y: k };
-      if (!checkShipHit(cell, ship)) {
+  for (let x = fromX; x <= toX; x++) {
+    for (let y = fromY; y <= toY; y++) {
+      const cell = { x, y };
+      if (!ship.hits.some((hit) => hit.x === x && hit.y === y)) {
         neighbors.push(cell);
       }
     }

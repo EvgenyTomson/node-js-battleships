@@ -23,48 +23,43 @@ export const handleConnection = (
   ws.on('message', (message: string) => {
     try {
       const d = JSON.parse(message);
-      // console.log(d, typeof d);
       const { type } = d;
       console.log('type: ', type);
-      // const data = JSON.parse(d.data);
 
       switch (type) {
-        case 'reg':
-          const dataR = JSON.parse(d.data);
-          // console.log('registration: ', dataR);
-          // console.log('registration typeof data: ', typeof dataR);
-          handlePlayerRegistration(ws, dataR);
-          // console.log('registration player');
+        case 'reg': {
+          const data = JSON.parse(d.data);
+          handlePlayerRegistration(ws, data);
           break;
+        }
         case 'create_room':
-          // console.log('create_room player: ', ws.playerData);
           handleRoomCreation(ws);
           break;
-        case 'add_user_to_room':
-          const dataA = JSON.parse(d.data);
-          // console.log('add_user_to_room: ', dataA);
-          handleAddUserToRoom(ws, wss, dataA);
+        case 'add_user_to_room': {
+          const data = JSON.parse(d.data);
+          handleAddUserToRoom(ws, wss, data);
           break;
+        }
         case 'update_room':
           broadcastRoomUpdate(wss);
           break;
-        case 'add_ships':
-          const dataS = JSON.parse(d.data);
-          // console.log('add_ships: ');
-          handleAddShips(ws, dataS);
+        case 'add_ships': {
+          const data = JSON.parse(d.data);
+          handleAddShips(ws, data);
           break;
-        case 'attack':
-          const dataAt = JSON.parse(d.data);
-          console.log('attack: ', dataAt);
-          handleAttack(ws, dataAt);
+        }
+        case 'attack': {
+          const data = JSON.parse(d.data);
+          handleAttack(ws, data);
           break;
-        case 'randomAttack':
-          const dataRadAt = JSON.parse(d.data);
-          dataRadAt.x = Math.trunc(Math.random() * 10);
-          dataRadAt.y = Math.trunc(Math.random() * 10);
-          console.log('randomAttack: ', dataRadAt);
-          handleAttack(ws, dataRadAt);
+        }
+        case 'randomAttack': {
+          const data = JSON.parse(d.data);
+          data.x = Math.trunc(Math.random() * 10);
+          data.y = Math.trunc(Math.random() * 10);
+          handleAttack(ws, data);
           break;
+        }
         default:
           ws.send(JSON.stringify({ error: 'Unknown command' }));
       }
