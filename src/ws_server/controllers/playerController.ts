@@ -90,3 +90,11 @@ export const handleRoomCreation = (ws: ExtendedWebSocket) => {
 
   broadcastRoomUpdate();
 };
+
+export const handleClientDisconnection = (ws: ExtendedWebSocket) => {
+  const playerData = ws['playerData'];
+  if (playerData) {
+    console.log(`Player ${playerData.name} disconnected.`);
+    wsClients.delete(ws);
+  }
+};

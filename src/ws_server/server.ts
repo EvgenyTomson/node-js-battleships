@@ -8,7 +8,7 @@ console.log(`WebSocket server start on ws://localhost:${PORT}`);
 
 wss.on('connection', (ws) => {
   console.log('New connection');
-  handleConnection(ws, wss);
+  handleConnection(ws);
 });
 
 process.on('SIGINT', () => {

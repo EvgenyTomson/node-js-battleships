@@ -1,5 +1,6 @@
 import { WebSocket, WebSocketServer } from 'ws';
 import {
+  handleClientDisconnection,
   handlePlayerRegistration,
   handleRoomCreation,
 } from './playerController';
@@ -16,10 +17,7 @@ export interface ExtendedWebSocket extends WebSocket {
   playerData?: PlayerData;
 }
 
-export const handleConnection = (
-  ws: ExtendedWebSocket,
-  wss: WebSocketServer,
-) => {
+export const handleConnection = (ws: ExtendedWebSocket) => {
   ws.on('message', (message: string) => {
     try {
       const d = JSON.parse(message);
@@ -67,5 +65,8 @@ export const handleConnection = (
       console.error('Error processing message:', error);
       ws.send(JSON.stringify({ error: 'Error processing message' }));
     }
+  });
+  ws.on('close', () => {
+    handleClientDisconnection(ws);
   });
 };
