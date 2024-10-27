@@ -27,12 +27,6 @@ export const handleAddUserToRoom = (
 
         sendMessageToRoomPlayers(room, 'create');
 
-        // TODO: need 1 more state for available rooms and remove root from it here
-        // const roomIndex = rooms.findIndex((r) => r.roomId === room.roomId);
-        // if (roomIndex !== -1) {
-        //   rooms.splice(roomIndex, 1);
-        // }
-
         broadcastRoomUpdate(wss);
       } else {
         broadcastRoomUpdate(wss);

@@ -25,3 +25,8 @@ export interface Room {
   gameStarted: boolean;
   currentTurn: number;
 }
+
+export interface Winner {
+  name: string;
+  wins: number;
+}

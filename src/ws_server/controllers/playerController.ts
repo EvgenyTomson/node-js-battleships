@@ -53,6 +53,7 @@ export const handlePlayerRegistration = (
         })),
       }));
 
+    // Here we need to update rooms only for this new client
     ws.send(
       JSON.stringify({
         type: 'update_room',

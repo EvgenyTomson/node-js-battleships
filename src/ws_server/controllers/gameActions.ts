@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { rooms } from '../utils/database';
+import { rooms, winners, wsClients } from '../utils/database';
 import { Ship, Room } from '../utils/types';
 import { sendMessageToRoomPlayers } from '../utils/utils';
 
@@ -50,6 +50,37 @@ export const handleAttack = (
         allShipsKilled(room.ships[opponentPlayer])
       ) {
         sendMessageToRoomPlayers(room, 'finish', { ...dataToSend, result });
+        // "update_winners"
+        const currentWinnerName = room.players.find(
+          (p) => p.index === data.indexPlayer,
+        )?.name;
+        // console.log('currentWinnerName: ', currentWinnerName);
+        if (currentWinnerName) {
+          const winnerIndex = winners.findIndex(
+            (w) => w.name === currentWinnerName,
+          );
+          // console.log('winnerIndex: ', winnerIndex);
+          if (winnerIndex !== -1) {
+            const newWinsCount = winners[winnerIndex].wins + 1;
+            winners.splice(winnerIndex, 1, {
+              name: currentWinnerName,
+              wins: newWinsCount,
+            });
+          } else {
+            winners.push({ name: currentWinnerName, wins: 1 });
+          }
+
+          broadcastUpdateWinners();
+        }
+
+        // TODO: need to remove room;
+        const currentRoomIndex = rooms.findIndex(
+          (r) => r.roomId === data.gameId,
+        );
+        if (currentRoomIndex !== -1) {
+          rooms.splice(currentRoomIndex, 1);
+        }
+
         return;
       }
       return;
@@ -160,4 +191,17 @@ const getNeighborsCells = (ship: Ship) => {
   }
 
   return neighbors;
+};
+
+const broadcastUpdateWinners = () => {
+  for (const [client] of wsClients) {
+    // console.log('broadcastUpdateWinners: ', client);
+    client.send(
+      JSON.stringify({
+        type: 'update_winners',
+        data: winners.map((w) => JSON.stringify(w)),
+        id: 0,
+      }),
+    );
+  }
 };
