@@ -37,11 +37,11 @@ export const handleConnection = (
           break;
         case 'add_user_to_room': {
           const data = JSON.parse(d.data);
-          handleAddUserToRoom(ws, wss, data);
+          handleAddUserToRoom(ws, data);
           break;
         }
         case 'update_room':
-          broadcastRoomUpdate(wss);
+          broadcastRoomUpdate();
           break;
         case 'add_ships': {
           const data = JSON.parse(d.data);

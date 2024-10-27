@@ -1,11 +1,10 @@
 import { WebSocket, WebSocketServer } from 'ws';
-import { rooms } from '../utils/database';
+import { rooms, wsClients } from '../utils/database';
 import { ExtendedWebSocket } from './commandRouter';
 import { sendMessageToRoomPlayers } from '../utils/utils';
 
 export const handleAddUserToRoom = (
   ws: ExtendedWebSocket,
-  wss: WebSocketServer,
   data: { indexRoom: number | string },
 ) => {
   if (!ws.playerData) return;
@@ -27,9 +26,9 @@ export const handleAddUserToRoom = (
 
         sendMessageToRoomPlayers(room, 'create');
 
-        broadcastRoomUpdate(wss);
+        broadcastRoomUpdate();
       } else {
-        broadcastRoomUpdate(wss);
+        broadcastRoomUpdate();
       }
     } else {
       ws.send(JSON.stringify({ error: 'The room is already full' }));
@@ -39,7 +38,7 @@ export const handleAddUserToRoom = (
   }
 };
 
-export const broadcastRoomUpdate = (wss: WebSocketServer) => {
+export const broadcastRoomUpdate = () => {
   const availableRooms = rooms
     .filter((room) => room.players.length === 1)
     .map((room) => ({
@@ -52,7 +51,7 @@ export const broadcastRoomUpdate = (wss: WebSocketServer) => {
       ),
     }));
 
-  wss.clients.forEach((client) => {
+  for (const [client] of wsClients) {
     if (client.readyState === WebSocket.OPEN) {
       client.send(
         JSON.stringify({
@@ -62,5 +61,5 @@ export const broadcastRoomUpdate = (wss: WebSocketServer) => {
         }),
       );
     }
-  });
+  }
 };

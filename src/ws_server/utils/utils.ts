@@ -69,7 +69,9 @@ export const sendMessageToRoomPlayers = (
           break;
       }
 
-      client.send(message);
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
     }
   }
 };

@@ -1,6 +1,7 @@
 import { players, rooms, wsClients } from '../utils/database';
 import { Player, Room } from '../utils/types';
 import { ExtendedWebSocket } from './commandRouter';
+import { broadcastRoomUpdate } from './roomActions';
 
 export const handlePlayerRegistration = (
   ws: ExtendedWebSocket,
@@ -86,17 +87,6 @@ export const handleRoomCreation = (ws: ExtendedWebSocket) => {
     currentTurn: 0,
   };
   rooms.push(room);
-  // console.log('room: ', room);
-  ws.send(
-    JSON.stringify({
-      type: 'update_room',
-      data: rooms.map((room) =>
-        JSON.stringify({
-          roomId: room.roomId,
-          players: room.players,
-        }),
-      ),
-      id: 0,
-    }),
-  );
+
+  broadcastRoomUpdate();
 };
