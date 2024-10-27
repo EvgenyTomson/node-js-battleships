@@ -7,12 +7,7 @@ export const handlePlayerRegistration = (
   ws: ExtendedWebSocket,
   data: { name: string; password: string },
 ) => {
-  // console.log('handlePlayerRegistration: ', data);
-  // console.log('players: ', players);
-
   const playerExists = players.some((player) => player.name === data.name);
-
-  // console.log('playerExists: ', playerExists);
 
   if (!playerExists) {
     const player: Player = {
@@ -21,8 +16,9 @@ export const handlePlayerRegistration = (
       index: players.length + 1,
       wins: 0,
     };
-    // console.log('player: ', player);
+
     players.push(player);
+
     const returnMsg = JSON.stringify({
       type: 'reg',
       data: JSON.stringify({
@@ -33,7 +29,6 @@ export const handlePlayerRegistration = (
       }),
       id: 0,
     });
-    // console.log('returnMsg: ', returnMsg, typeof returnMsg);
     ws.send(returnMsg);
 
     ws.playerData = {
@@ -54,7 +49,6 @@ export const handlePlayerRegistration = (
         })),
       }));
 
-    // Here we need to update rooms only for this new client
     ws.send(
       JSON.stringify({
         type: 'update_room',
@@ -72,7 +66,6 @@ export const handlePlayerRegistration = (
       }),
       id: 0,
     });
-    console.log('errorMessage: ', errorMessage, typeof errorMessage);
     ws.send(errorMessage);
   }
 };

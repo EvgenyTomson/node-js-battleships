@@ -10,7 +10,7 @@ export interface Ship {
     x: number;
     y: number;
   };
-  direction: boolean; // true - vertical
+  direction: boolean;
   length: number;
   type: 'small' | 'medium' | 'large' | 'huge';
   hits: { x: number; y: number }[];

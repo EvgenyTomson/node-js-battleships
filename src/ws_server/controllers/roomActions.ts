@@ -1,4 +1,4 @@
-import { WebSocket, WebSocketServer } from 'ws';
+import { WebSocket } from 'ws';
 import { rooms, wsClients } from '../utils/database';
 import { ExtendedWebSocket } from './commandRouter';
 import { sendMessageToRoomPlayers } from '../utils/utils';
@@ -10,7 +10,6 @@ export const handleAddUserToRoom = (
   if (!ws.playerData) return;
 
   const room = rooms.find((r) => r.roomId === Number(data.indexRoom));
-  console.log('handleAddUserToRoom room: ', room);
 
   if (room) {
     if (room.players.length < 2) {
@@ -23,13 +22,9 @@ export const handleAddUserToRoom = (
       if (room.players.length === 2) {
         room.gameStarted = true;
         room.currentTurn = room.players[0].index;
-
         sendMessageToRoomPlayers(room, 'create');
-
-        broadcastRoomUpdate();
-      } else {
-        broadcastRoomUpdate();
       }
+      broadcastRoomUpdate();
     } else {
       ws.send(JSON.stringify({ error: 'The room is already full' }));
     }

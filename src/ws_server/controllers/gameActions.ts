@@ -40,7 +40,6 @@ export const handleAttack = (
     const result = checkAttack(room, data.x, data.y, data.indexPlayer);
 
     const { gameId, ...dataToSend } = data;
-
     sendMessageToRoomPlayers(room, 'attack', { ...dataToSend, result });
 
     if (result === 'shot' || result === 'killed') {
@@ -50,16 +49,14 @@ export const handleAttack = (
         allShipsKilled(room.ships[opponentPlayer])
       ) {
         sendMessageToRoomPlayers(room, 'finish', { ...dataToSend, result });
-        // "update_winners"
+
         const currentWinnerName = room.players.find(
           (p) => p.index === data.indexPlayer,
         )?.name;
-        // console.log('currentWinnerName: ', currentWinnerName);
         if (currentWinnerName) {
           const winnerIndex = winners.findIndex(
             (w) => w.name === currentWinnerName,
           );
-          // console.log('winnerIndex: ', winnerIndex);
           if (winnerIndex !== -1) {
             const newWinsCount = winners[winnerIndex].wins + 1;
             winners.splice(winnerIndex, 1, {
@@ -73,7 +70,6 @@ export const handleAttack = (
           broadcastUpdateWinners();
         }
 
-        // TODO: need to remove room;
         const currentRoomIndex = rooms.findIndex(
           (r) => r.roomId === data.gameId,
         );
@@ -107,7 +103,6 @@ const allShipsKilled = (ships: Ship[]): boolean => {
 
 const checkShipHit = (hit: { x: number; y: number }, ship: Ship) => {
   return (
-    // true - vertical
     hit.x >= ship.position.x &&
     hit.x < ship.position.x + (ship.direction ? 1 : ship.length) &&
     hit.y >= ship.position.y &&
@@ -133,8 +128,6 @@ const checkAttack = (
   if (opponentPlayer) {
     const opponentShips = room.ships[Number(opponentPlayer)];
 
-    // console.log('checkAttack opponentShips: ', opponentShips);
-
     for (const ship of opponentShips) {
       if (checkShipHit({ x, y }, ship)) {
         const isAlreadyHit = ship.hits.some(
@@ -147,7 +140,6 @@ const checkAttack = (
         ship.hits.push({ x, y });
 
         const isShipKilled = checkIfShipKilled(ship);
-
         if (isShipKilled) {
           const neighborsCells = getNeighborsCells(ship);
 
@@ -169,7 +161,6 @@ const checkAttack = (
 const checkIfShipKilled = (ship: Ship) => ship.hits.length === ship.length;
 
 const getNeighborsCells = (ship: Ship) => {
-  // true - vertical
   const fromX = Math.max(ship.position.x - 1, 0);
   const toX = ship.direction
     ? Math.min(ship.position.x + 1, 9)
@@ -195,7 +186,6 @@ const getNeighborsCells = (ship: Ship) => {
 
 const broadcastUpdateWinners = () => {
   for (const [client] of wsClients) {
-    // console.log('broadcastUpdateWinners: ', client);
     client.send(
       JSON.stringify({
         type: 'update_winners',

@@ -1,4 +1,4 @@
-import { WebSocket, WebSocketServer } from 'ws';
+import { WebSocket } from 'ws';
 import {
   handleClientDisconnection,
   handlePlayerRegistration,
@@ -22,7 +22,6 @@ export const handleConnection = (ws: ExtendedWebSocket) => {
     try {
       const d = JSON.parse(message);
       const { type } = d;
-      console.log('type: ', type);
 
       switch (type) {
         case 'reg': {
