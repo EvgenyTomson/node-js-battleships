@@ -1,20 +1,17 @@
 import { WebSocketServer } from 'ws';
 import { handleConnection } from './controllers/commandRouter';
 
-const PORT = 3000;
-export const wss = new WebSocketServer({ port: PORT });
+let wss: WebSocketServer | null = null;
 
-console.log(`WebSocket server start on ws://localhost:${PORT}`);
+export const startWebSocketServer = (port: number) => {
+  wss = new WebSocketServer({ port });
 
-wss.on('connection', (ws) => {
-  console.log('New connection');
-  handleConnection(ws);
-});
+  console.log(`WebSocket server start on ws://localhost:${port}`);
 
-process.on('SIGINT', () => {
-  console.log('Shooting down the server');
-  wss.close(() => {
-    console.log('WebSocket server is offline');
-    process.exit(0);
+  wss.on('connection', (ws) => {
+    console.log('New connection');
+    handleConnection(ws);
   });
-});
+};
+
+export const getWebSocketServer = () => wss;
