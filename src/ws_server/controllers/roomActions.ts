@@ -38,12 +38,7 @@ export const broadcastRoomUpdate = () => {
     .filter((room) => room.players.length === 1)
     .map((room) => ({
       roomId: room.roomId,
-      roomUsers: room.players.map((player) =>
-        JSON.stringify({
-          name: player.name,
-          index: player.index,
-        }),
-      ),
+      roomUsers: room.players,
     }));
 
   for (const [client] of wsClients) {
